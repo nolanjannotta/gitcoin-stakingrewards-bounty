@@ -2,11 +2,6 @@ const { expect } = require('chai');
 // const { ethers } = 'ethers';
 const { BigNumber } = require('ethers')
 
-
-
-
-
-
 require('chai')
   .use(require('chai-as-promised'))
   .should()
@@ -30,11 +25,6 @@ describe('StakingRewards', function () {
     rewardTokenAddress2 = rewardtoken2.address;
 
 
-    const StakingRewards = await ethers.getContractFactory('StakingRewards');
-
-    stakingrewards = await StakingRewards.deploy([rewardTokenAddress1, rewardTokenAddress2],
-    stakingTokenAddress, ecosystem.address, 15, 5, 5, 1, 7, 10, 7
-    );
 
   })
   describe("Mock Tokens", async () => {
@@ -62,7 +52,7 @@ describe('StakingRewards', function () {
 
       const StakingRewards = await ethers.getContractFactory('StakingRewards');
       stakingrewards = await StakingRewards.deploy([rewardTokenAddress1, rewardTokenAddress2],
-      stakingTokenAddress, ecosystem.address, 15, 5, 5, 1, 7, 10, 7
+      stakingTokenAddress, ecosystem.address, 20, 5, 5, 1, 7, 10, 7
       );
 
     })
