@@ -92,8 +92,8 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
         uint _ecosystemFee,
 
         uint _daysUntilStart, // = number of days until start
-        uint _daysUntilEnd,
-        uint _immediateHarvestPercent,// 
+        uint _daysUntilEnd, // number of days after start
+        uint _immediateHarvestPercent,
         uint _lockUpTime // in days
     ) {
 
@@ -106,8 +106,8 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
 
         ecosystemFund = _ecosystemFund;
 
-        startTime = block.timestamp + _daysUntilStart;
-        endTime = startTime + _daysUntilEnd;
+        startTime = block.timestamp + _daysUntilStart.mul(1 days); // is this right?
+        endTime = startTime + _daysUntilEnd.mul(1 days);
 
         earlyWithdrawPercent = _earlyWithdrawFee;
         burnPercent = _burnPercentage; 
@@ -164,7 +164,7 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
         emit Staked(msg.sender, amount);
     }
 
-    function _earlyWithdrawPenalty(uint _amount) internal returns(uint) {
+    function _earlyWithdrawPenalty(uint _amount) internal {
         _amount = _amount * 1 ether;
         // total fee amount based on how much user trying to withdraw
         //  IN WEI!!!!!
