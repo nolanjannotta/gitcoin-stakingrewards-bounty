@@ -27,6 +27,7 @@ When deploying the contract, the owner should be able to declare the following o
 [] Z: % of rewards that are immediately harvestable
 [] D: no. of days that non-harvestable rewards are vested for
 */
+
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
@@ -38,12 +39,6 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./StakingToken.sol";
-
-
-
-
-
-
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
 contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
@@ -90,6 +85,7 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
         uint _earlyWithdrawFee,
         uint _burnPercentage,
         uint _ecosystemFee,
+        uint _rewardRate,
 
         uint _daysUntilStart, // = number of days until start
         uint _daysUntilEnd, // number of days after start
@@ -115,6 +111,8 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
         immediateHarvestPercent = _immediateHarvestPercent;
         lockUpTime = _lockUpTime;
 
+        rewardRate = _rewardRate;
+
 
 
     }
@@ -133,7 +131,7 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
         return Math.min(block.timestamp, endTime);
     }
 
-
+    
 
 
     function rewardPerToken() public view returns (uint256) {
@@ -155,6 +153,10 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
     // }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
+
+    function setLastUpdateTime() public {
+        lastUpdateTime = block.timestamp;
+    }
 
     function stake(uint256 amount) external nonReentrant whenNotPaused {
         require(amount > 0, "Cannot stake 0");
@@ -187,11 +189,6 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
         _balances[msg.sender] = _balances[msg.sender].sub(_newAmount.div(1 ether));
         IERC20(stakingToken).safeTransfer(msg.sender, _newAmount);
         emit Withdrawn(msg.sender, _newAmount);
-    
-
-
-        // final amount after fees
-        
 
     }
 
@@ -213,6 +210,7 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
 
     // function getReward() public nonReentrant {
     //     uint256 reward = rewards[msg.sender];
+
     //     if (reward > 0) {
     //         rewards[msg.sender] = 0;
     //         rewardsToken.safeTransfer(msg.sender, reward);
@@ -236,10 +234,10 @@ contract StakingRewards is ReentrancyGuard, Pausable, Ownable {
     //         rewardRate = reward.add(leftover).div(rewardsDuration);
     //     }
 
-        // Ensure the provided reward amount is not more than the balance in the contract.
-        // This keeps the reward rate in the right range, preventing overflows due to
-        // very high values of rewardRate in the earned and rewardsPerToken functions;
-        // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
+    //     // Ensure the provided reward amount is not more than the balance in the contract.
+    //     // This keeps the reward rate in the right range, preventing overflows due to
+    //     // very high values of rewardRate in the earned and rewardsPerToken functions;
+    //     // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
     //     uint balance = rewardsToken.balanceOf(address(this));
     //     require(rewardRate <= balance.div(rewardsDuration), "Provided reward too high");
 

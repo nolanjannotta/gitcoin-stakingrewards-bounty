@@ -2,32 +2,37 @@ const { expect } = require('chai');
 // const { ethers } = 'ethers';
 const { BigNumber } = require('ethers')
 
+
 require('chai')
   .use(require('chai-as-promised'))
   .should()
 
 describe('StakingRewards', function () {
   let address, deployer, wallet1, wallet2, wallet3, wallet4,
-    stakingTokenAddress, rewardTokenAddress1, rewardTokenAddress2, ecosystem, balance, totalsupply
+    stakingTokenAddress, rewardTokenAddress1, rewardTokenAddress2, ecosystem, balance, totalsupply, tx
 
-  before(async () => {
-    [deployer, ecosystem, wallet1, wallet2, wallet3, wallet4] = await ethers.getSigners();
-    const StakingToken = await ethers.getContractFactory('StakingToken');
-    stakingtoken = await StakingToken.deploy();
-
-    const RewardToken1 = await ethers.getContractFactory('RewardToken1');
-    rewardtoken1 = await RewardToken1.deploy();
-
-    const RewardToken2 = await ethers.getContractFactory('RewardToken2');
-    rewardtoken2 = await RewardToken2.deploy();
-    stakingTokenAddress = stakingtoken.address;
-    rewardTokenAddress1 = rewardtoken1.address;
-    rewardTokenAddress2 = rewardtoken2.address;
-
-
-
-  })
+  
   describe("Mock Tokens", async () => {
+
+    before(async () => {
+
+      [deployer, ecosystem, wallet1, wallet2, wallet3, wallet4] = await ethers.getSigners();
+      const StakingToken = await ethers.getContractFactory('StakingToken');
+      stakingtoken = await StakingToken.deploy();
+  
+      const RewardToken1 = await ethers.getContractFactory('RewardToken1');
+      rewardtoken1 = await RewardToken1.deploy();
+  
+      const RewardToken2 = await ethers.getContractFactory('RewardToken2');
+      rewardtoken2 = await RewardToken2.deploy();
+  
+      stakingTokenAddress = stakingtoken.address;
+      rewardTokenAddress1 = rewardtoken1.address;
+      rewardTokenAddress2 = rewardtoken2.address;
+  
+  
+  
+    })
 
     it("deploys tokens", async () => {
       expect(stakingTokenAddress).to.be.properAddress;
@@ -52,9 +57,15 @@ describe('StakingRewards', function () {
 
       const StakingRewards = await ethers.getContractFactory('StakingRewards');
       stakingrewards = await StakingRewards.deploy([rewardTokenAddress1, rewardTokenAddress2],
-      stakingTokenAddress, ecosystem.address, 20, 5, 5, 1, 7, 10, 7
+      stakingTokenAddress, ecosystem.address, 20, 5, 5, 5, 1, 7, 10, 7
       );
 
+    })
+    it('Should have proper address', async () => {
+
+      address = stakingrewards.address;
+      console.log('contract:', address)
+      expect(address).to.be.properAddress;
     })
 
     it('from should equal deployer', async () => {
@@ -64,12 +75,7 @@ describe('StakingRewards', function () {
 
     })
 
-    it('Should have proper address', async () => {
-
-      address = stakingrewards.address;
-      console.log('contract:', address)
-      expect(address).to.be.properAddress;
-    });
+    
 
     it("tracks early withdraw fee Percent", async () => {
       a = await stakingrewards.earlyWithdrawPercent()
@@ -108,6 +114,20 @@ describe('StakingRewards', function () {
       console.log("wallet 1 balance after stake:", balance.toString())
 
     })
+    
+
+  })
+  describe("rewards", async () => {
+
+    it("reward per token", async () => {
+      tx = await stakingrewards.connect(deployer).setLastUpdateTime();
+      console.log(tx.value.toString())
+      tx = await stakingrewards.connect(wallet1).rewardPerToken()
+      console.log(tx.toString())
+
+
+    })
+
 
   })
   
